@@ -1,6 +1,7 @@
 using la_mia_pizzeria_static.CustomLoggers;
 using la_mia_pizzeria_static.Database;
 using Microsoft.AspNetCore.Identity;
+using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -13,6 +14,12 @@ builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.Requ
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+
+
+// Codice di cofigurazione per il serializzatore JSON, in modo che ignori completamente le dipendenze cicliche di
+// eventuali relazione N:N o 1:N presenti nel JSON risultante.
+builder.Services.AddControllers().AddJsonOptions(x =>
+                x.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
 
 builder.Services.AddScoped<ICustomLogger, CustomFileLogger>();
 builder.Services.AddScoped<PizzaContext, PizzaContext>();
