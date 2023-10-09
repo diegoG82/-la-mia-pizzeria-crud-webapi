@@ -1,0 +1,87 @@
+﻿@{
+    Layout = "_MioLayout";
+}
+
+@model List<Pizza>
+
+<main>
+    <div class="title mt-4"><h1 class="text-center  mt-2 mb-4">WELCOME TO KAWAII PIZZA </h1></div>
+    
+
+    <div class="container-fluid mainpage mt-4 ">
+
+        <div class="mainpage mt-4 mb-4 text-center"> <img class="mainimg" src="\img\kawaiii.jpg" /></div>
+
+    </div>
+
+    <div class="title mb-4"><h1 class="text-center mt-2 mb-4">OUR BEST PIZZAS:</h1></div>
+  
+
+    @section Button{
+        <div class="btn_container">
+
+            <button class="btn btn-success " onclick="showPopup()">CLICK HERE</button>
+
+        </div>
+
+
+        <script>
+
+            function showPopup() {
+                const popup = window.open("", "Popup", "width=1920,height=1080");
+
+                const text = document.createElement("div");
+                text.style.fontSize = "50px";
+                text.style.fontWeight = "bold";
+                text.style.color = "black";
+                text.style.position = "absolute";
+                text.style.top = "50%";
+                text.style.left = "50%";
+                text.style.transform = "translate(-50%, -50%)";
+                text.textContent = "ありがとうございます。";
+
+                popup.document.body.appendChild(text);
+            }
+
+
+        </script>
+
+    }
+
+    <div class="container">
+        <div class="row">
+            @foreach (Pizza pizza in Model)
+            {
+                <div class="col-sm-4 g-4">
+                    <div class="card">
+                        <img src="@pizza.Image" alt="NO IMAGE" />
+                        <div class="container text-center ">
+                        <h3> @pizza.Name</h3>
+                         <p>@pizza.Description</p>
+                            <p>
+                                @if (pizza.Ingredients?.Count > 0)
+                                {
+                                    @string.Join(", ", pizza.Ingredients.Select(i => i.Name))
+                                }
+                                else
+                                {
+                                    <span>No ingredients</span>
+                                }
+                            </p>
+                         <p>@pizza.Category?.Name</p>
+                         <p>@pizza.Price yen</p>
+                         <a class="btn btn-danger mb-4" href="@Url.Action("Details", "Pizza", new { id = pizza.Id })" title="pizza details">DETAILS
+                            </a>
+
+                        </div>
+                    </div>
+                </div>
+            }
+
+        </div>
+
+    </div>
+
+
+
+</main>
