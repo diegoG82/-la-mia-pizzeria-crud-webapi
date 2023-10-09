@@ -1,6 +1,7 @@
 ﻿using la_mia_pizzeria_static.Database;
 using la_mia_pizzeria_static.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace la_mia_pizzeria_static.API
 {
@@ -22,9 +23,18 @@ namespace la_mia_pizzeria_static.API
         public IActionResult GetPizzas()
         {
 
-            List<Pizza> pizzas = _myDb.Pizzas.ToList();
+            List<Pizza> pizzas = _myDb.Pizzas.Include(p => p.Category)
+        .Include(p => p.Ingredients).ToList();
 
-            return Ok(pizzas);
+            if (pizzas.Count == 0)
+            {
+                return BadRequest();
+            }
+            else
+            {
+                return Ok(pizzas);
+            }
+
         }
 
         //FILTRO CON NOME
@@ -32,8 +42,19 @@ namespace la_mia_pizzeria_static.API
         public IActionResult GetPizzasByName(string name)
         {
 
-            List<Pizza> pizzas = _myDb.Pizzas.Where(p => p.Name.Contains(name)).ToList();
-            return Ok(pizzas);
+            List<Pizza> pizzas = _myDb.Pizzas.Where(p => p.Name.Contains(name)).Include(p => p.Category)
+        .Include(p => p.Ingredients).ToList();
+
+            if (pizzas.Count == 0)
+            {
+                return BadRequest();
+            }
+            else
+            {
+                return Ok(pizzas);
+            }
+
+
 
         }
 
@@ -42,8 +63,18 @@ namespace la_mia_pizzeria_static.API
         public IActionResult GetPizzasById(int Id)
         {
 
-            List<Pizza> pizzas = _myDb.Pizzas.Where(p => p.Id == Id).ToList();
-            return Ok(pizzas);
+            List<Pizza> pizzas = _myDb.Pizzas.Where(p => p.Id == Id).Include(p => p.Category.Name)
+        .Include(p => p.Ingredients).ToList();
+
+            if (pizzas.Count == 0)
+            {
+                return BadRequest();
+            }
+            else
+            {
+                return Ok(pizzas);
+            }
+
 
         }
 
@@ -64,7 +95,13 @@ namespace la_mia_pizzeria_static.API
         [HttpPut("{id}")]
         public IActionResult UpdatePizza(int Id, [FromBody] Pizza updatedPizza)
         {
-            Pizza? modifiedPizza = _myDb.Pizzas.Where(pizza => pizza.Id == Id).FirstOrDefault();
+            Pizza? modifiedPizza = _myDb.Pizzas.Where(p => p.Id == Id).Include(p => p.Category)
+        .Include(p => p.Ingredients).FirstOrDefault();
+
+            if (modifiedPizza != null)
+            {
+                return NotFound();
+            }
 
 
             modifiedPizza.Name = updatedPizza.Name;
@@ -79,13 +116,28 @@ namespace la_mia_pizzeria_static.API
 
             return Ok();
         }
-       
+
+        //DELETE PIZZA
+        [HttpDelete("{id}")]
+
+        public IActionResult DeletePizza(int Id)
+        {
+            Pizza deletedPizza = _myDb.Pizzas.Where(pizza => pizza.Id == Id).FirstOrDefault();
+
+            if (deletedPizza == null)
+            {
+                return NotFound();
+            }
+
+            _myDb.Pizzas.Remove(deletedPizza);
+            _myDb.SaveChanges();
+            return Ok();
+        }
 
 
     }
+
 }
-
-
 
 
 
