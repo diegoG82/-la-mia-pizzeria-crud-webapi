@@ -39,7 +39,7 @@ namespace la_mia_pizzeria_static.API
 
         //FILTRO CON NOME
         [HttpGet]
-        public IActionResult GetPizzasByName(string name)
+        public IActionResult GetPizzasByName(string? name)
         {
 
             List<Pizza> pizzas = _myDb.Pizzas.Where(p => p.Name.Contains(name)).Include(p => p.Category)
@@ -63,7 +63,7 @@ namespace la_mia_pizzeria_static.API
         public IActionResult GetPizzasById(int Id)
         {
 
-            List<Pizza> pizzas = _myDb.Pizzas.Where(p => p.Id == Id).Include(p => p.Category.Name)
+            List<Pizza> pizzas = _myDb.Pizzas.Where(p => p.Id == Id).Include(p => p.Category)
         .Include(p => p.Ingredients).ToList();
 
             if (pizzas.Count == 0)
@@ -118,11 +118,11 @@ namespace la_mia_pizzeria_static.API
         }
 
         //DELETE PIZZA
-        [HttpDelete("{id}")]
+        [HttpDelete]
 
-        public IActionResult DeletePizza(int Id)
+        public IActionResult DeletePizza(int id)
         {
-            Pizza deletedPizza = _myDb.Pizzas.Where(pizza => pizza.Id == Id).FirstOrDefault();
+            Pizza deletedPizza = _myDb.Pizzas.Where(pizza => pizza.Id == id).FirstOrDefault();
 
             if (deletedPizza == null)
             {

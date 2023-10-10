@@ -1,0 +1,158 @@
+﻿@{
+    Layout = "_MioLayout";
+}
+
+
+
+<div class="container">
+
+
+    <div class="row">
+        <div class="col-12">
+            <h1 class="title text-center">PIZZA API MANAGE PAGE</h1>
+            <div>
+                <input id="js_search_box" type="text" class="form-control my-3" placeholder="Searching pizzas...">
+            </div>
+        </div>
+    </div>
+
+    <div id="loading-spinner" class="row">
+        <div class="col-12">
+            <div class="spinner-border" role="status">
+            </div>
+            <span>SEARCHING PIZZAS</span>
+        </div>
+    </div>
+
+    
+    <div id="row-no-pizzas" class="row d-none">
+        <div class="col-12">
+         No pizzas founded!
+        </div>
+    </div>
+
+    <div id="list-of-pizzas" class="row d-none">
+   
+    </div>
+
+</div>
+
+
+@section Scripts {
+
+    <script type="text/javascript">
+
+        loadPizzas();
+
+        document.getElementById("js_search_box").addEventListener('keyup', searchPizzas);
+
+        function searchPizzas() {
+            let searchString = document.getElementById("js_search_box").value;
+
+            loadPizzas(searchString);
+        }
+
+
+        function deletePizza(pizzaId) {
+
+
+            alert("alert !" + pizzaId)
+
+            axios.delete("https://localhost:7274/api/Pizzas/DeletePizza", {
+                
+                params: {
+                    id: pizzaId
+                }
+            }).then((res) => {
+
+                alert("alert!")
+
+                if (res.status === 200) {
+
+
+                    let listOfPizzasElement = document.getElementById("list-of-pizzas");
+                    let pizzaToRemove = listOfPizzasElement.querySelector(`[data-pizza-id="${pizzaId}"`);
+                    pizzaToRemove.remove();
+
+                alert("Pizza Deleted!");
+
+                } else {
+
+                    alert("Error, No Pizza Deleted!");
+                }
+
+            });
+        }
+
+        function loadPizzas(searchParam) {
+            axios.get('/api/Pizzas/GetPizzasByName', {
+                params: {
+                    Name: searchParam
+
+                }
+            }).then((res) => {
+
+                let divNoPizzas = document.getElementById("div-no-Pizzas");
+                let loadingSpinnerElement = document.getElementById("loading-spinner");
+                let listOfPizzasElement = document.getElementById("list-of-pizzas");
+
+                if (res.data.length == 0) {
+
+                    divNoPizzas.classList.remove("d-none");
+                    loadingSpinnerElement.classList.add("d-none");
+
+                } else {
+                    loadingSpinnerElement.classList.add("d-none");
+                    listOfPizzasElement.classList.remove("d-none");
+
+                    listOfPizzasElement.innerHTML = "";
+
+                    res.data.forEach(pizza => {
+
+
+                        listOfPizzasElement.innerHTML +=
+                            `
+                            <div class="col-12 col-md-4 p-2" id="${pizza.id}">
+
+                                <div class="card text-center ">
+                                    <img src="${pizza.image}" class="card-img-top" alt="Immagine ${pizza.id}">
+                                    <div id="card_` + pizza.id +`" class="card-body">
+                                       <h5 class="card-title">${pizza.name}</h5>
+                                       <p class="card-text">${pizza.description}</p>
+                                       <p class="card-text">${pizza.category.name}</p>
+                                       <p class="card-text">${pizza.price} yen</p>
+
+                                    </div>
+                                </div>
+
+                            </div>
+                            `;
+
+                        const btn = document.createElement("button");
+                        btn.type = "button";
+                        btn.classList.add("btn", "btn-danger");
+                        btn.innerHTML = "Delete";
+                        btn.setAttribute("data-pizza-id", pizza.id);
+                        btn.setAttribute("id", pizza.id);
+                        btn.onclick = function () { deletePizza(pizza.id); };
+                        document.getElementById("card_" + pizza.id).appendChild(btn);
+
+                    });
+                }
+
+            })
+        }
+
+
+
+       
+      
+
+     
+      
+
+
+
+    </script>
+
+}
